@@ -217,5 +217,37 @@ CloseBtn.MouseButton1Click:Connect(function()
     end)
     No.MouseButton1Click:Connect(function()
         Confirm:Destroy()
+-- Variável para guardar posição da bolinha
+local lastMiniPos = UDim2.new(0, 10, 0.9, 0)
+
+MinBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = false
+    local MiniButton = Instance.new("TextButton")
+    MiniButton.Size = UDim2.new(0, 40, 0, 40)
+    MiniButton.Position = lastMiniPos -- reaparece no último lugar salvo
+    MiniButton.Text = "+"
+    MiniButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    MiniButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    MiniButton.Font = Enum.Font.GothamBold
+    MiniButton.TextScaled = true
+    MiniButton.Active = true
+    MiniButton.Draggable = true
+    MiniButton.Parent = ScreenGui
+
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(1, 0)
+    c.Parent = MiniButton
+
+    -- Salva posição sempre que o jogador solta a bolinha
+    MiniButton.MouseLeave:Connect(function()
+        lastMiniPos = MiniButton.Position
+    end)
+
+    MiniButton.MouseButton1Click:Connect(function()
+        lastMiniPos = MiniButton.Position -- salva última posição antes de abrir
+        Frame.Visible = true
+        MiniButton:Destroy()
+    end)
+end)
     end)
 end)
