@@ -1,253 +1,167 @@
--- Hop Los Brothers v3 (Painel Melhorado)
+--// Hop Los Brothers v4.0 - Script Unificado
+local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local GuiService = game:GetService("GuiService")
+local player = Players.LocalPlayer
 
-local MIN_BRAINROT = 1000000 -- valor mínimo para considerar servidor bom
+-- Criar ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "HopLosBrothers"
+ScreenGui.DisplayOrder = 5 -- Fica atrás do menu de pause
+ScreenGui.Parent = game.CoreGui
 
--- GUI principal
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+-- Criar Janela Principal
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 280, 0, 180)
+MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(135, 206, 250) -- azul claro
+MainFrame.BackgroundTransparency = 0.25
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 280, 0, 180)
-Frame.Position = UDim2.new(0.5, -140, 0.5, -90)
-Frame.BackgroundColor3 = Color3.fromRGB(150, 200, 255)
-Frame.BackgroundTransparency = 0.25
-Frame.Active = true
-Frame.Draggable = true
-Frame.Parent = ScreenGui
-
+-- Bordas Arredondadas
 local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 14)
-Corner.Parent = Frame
-
--- Função para criar botões do topo
-local function createTopButton(text, offsetX)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 30, 0, 25)
-    btn.Position = UDim2.new(1, offsetX, 0, 5)
-    btn.AnchorPoint = Vector2.new(1, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextColor3 = Color3.fromRGB(0, 0, 0)
-    btn.Text = text
-    btn.Font = Enum.Font.GothamBold
-    btn.TextScaled = true
-    btn.Parent = Frame
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, 6)
-    c.Parent = btn
-    return btn
-end
-
-local CloseBtn = createTopButton("X", -5)
-local MinBtn = createTopButton("-", -40)
-local FullBtn = createTopButton("□", -75)
+Corner.CornerRadius = UDim.new(0, 10)
+Corner.Parent = MainFrame
 
 -- Título
 local Title = Instance.new("TextLabel")
-Title.Text = "Hop Los Brothers"
-Title.Size = UDim2.new(1, 0, 0, 25)
-Title.Position = UDim2.new(0, 0, 0, 35)
+Title.Size = UDim2.new(1, -10, 0, 30)
+Title.Position = UDim2.new(0, 5, 0, 0)
 Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "Hop Los Brothers"
 Title.Font = Enum.Font.GothamBold
-Title.TextScaled = true
-Title.Parent = Frame
+Title.TextSize = 18
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextStrokeTransparency = 0.5
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = MainFrame
 
--- Botão principal
-local HopButton = Instance.new("TextButton")
-HopButton.Size = UDim2.new(0.8, 0, 0, 35)
-HopButton.Position = UDim2.new(0.1, 0, 0.45, 0)
-HopButton.Text = "Server Hop"
-HopButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-HopButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-HopButton.Font = Enum.Font.GothamBold
-HopButton.TextScaled = true
-HopButton.Parent = Frame
+-- Função de Minimizar
+local Minimized = false
+local Bubble
 
-local ButtonCorner = Instance.new("UICorner")
-ButtonCorner.CornerRadius = UDim.new(0, 10)
-ButtonCorner.Parent = HopButton
-
--- Texto TikTok
-local TikTok = Instance.new("TextLabel")
-TikTok.Text = "TikTok: LosBrothers.ofc"
-TikTok.Size = UDim2.new(1, 0, 0, 20)
-TikTok.Position = UDim2.new(0, 0, 1, -22)
-TikTok.BackgroundTransparency = 1
-TikTok.TextColor3 = Color3.fromRGB(255, 255, 255)
-TikTok.Font = Enum.Font.Gotham
-TikTok.TextScaled = true
-TikTok.Parent = Frame
-
--- Função para buscar brainrot
-local function GetBrainrot()
-    local val = nil
-    pcall(function()
-        if LocalPlayer:FindFirstChild("leaderstats") then
-            for _, v in pairs(LocalPlayer.leaderstats:GetChildren()) do
-                if string.find(string.lower(v.Name), "brain") then
-                    val = tonumber(v.Value)
-                end
-            end
-        end
-    end)
-    return val
-end
-
--- Hop rápido
-local function HopServer()
-    local servers = {}
-    local cursor = ""
-    repeat
-        local success, result = pcall(function()
-            return HttpService:JSONDecode(
-                game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"..(cursor ~= "" and "&cursor="..cursor or ""))
-            )
-        end)
-        if success and result and result.data then
-            for _, v in pairs(result.data) do
-                if v.playing < v.maxPlayers then
-                    table.insert(servers, v.id)
-                end
-            end
-            cursor = result.nextPageCursor or ""
-        else
-            break
-        end
-    until cursor == ""
-    if #servers > 0 then
-        TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1,#servers)], LocalPlayer)
-    end
-end
-
--- Clique para hop
-HopButton.MouseButton1Click:Connect(function()
-    while task.wait(1.5) do -- hop mais rápido
-        local brainrot = GetBrainrot()
-        if brainrot and brainrot >= MIN_BRAINROT then
-            warn("Servidor bom encontrado! Parando.")
-            break
-        else
-            HopServer()
-        end
-    end
-end)
-
--- Minimizar → Bolinha arrastável
-MinBtn.MouseButton1Click:Connect(function()
-    Frame.Visible = false
-    local MiniButton = Instance.new("TextButton")
-    MiniButton.Size = UDim2.new(0, 40, 0, 40)
-    MiniButton.Position = UDim2.new(0, 10, 0.9, 0)
-    MiniButton.Text = "+"
-    MiniButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    MiniButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-    MiniButton.Font = Enum.Font.GothamBold
-    MiniButton.TextScaled = true
-    MiniButton.Active = true
-    MiniButton.Draggable = true -- agora pode mover a bolinha
-    MiniButton.Parent = ScreenGui
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(1, 0)
-    c.Parent = MiniButton
-    MiniButton.MouseButton1Click:Connect(function()
-        Frame.Visible = true
-        MiniButton:Destroy()
-    end)
-end)
-
--- Tela cheia
-local full = false
-FullBtn.MouseButton1Click:Connect(function()
-    if not full then
-        Frame.Size = UDim2.new(1, 0, 1, 0)
-        Frame.Position = UDim2.new(0, 0, 0, 0)
-        full = true
+local function toggleMinimize()
+    if not Minimized then
+        MainFrame.Visible = false
+        Bubble.Visible = true
     else
-        Frame.Size = UDim2.new(0, 280, 0, 180)
-        Frame.Position = UDim2.new(0.5, -140, 0.5, -90)
-        full = false
+        MainFrame.Visible = true
+        Bubble.Visible = false
     end
+    Minimized = not Minimized
+end
+
+-- Criar Bolinha para Restaurar
+Bubble = Instance.new("TextButton")
+Bubble.Size = UDim2.new(0, 40, 0, 40)
+Bubble.Position = UDim2.new(0.05, 0, 0.8, 0)
+Bubble.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Bubble.Text = "+"
+Bubble.Visible = false
+Bubble.Parent = ScreenGui
+
+-- Permitir mover bolinha
+Bubble.Active = true
+Bubble.Draggable = true
+local lastBubblePos = Bubble.Position
+Bubble:GetPropertyChangedSignal("Position"):Connect(function()
+    lastBubblePos = Bubble.Position
 end)
 
--- Fechar → Confirmação
-CloseBtn.MouseButton1Click:Connect(function()
-    local Confirm = Instance.new("Frame")
-    Confirm.Size = UDim2.new(0, 200, 0, 100)
-    Confirm.Position = UDim2.new(0.5, -100, 0.5, -50)
-    Confirm.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Confirm.Parent = ScreenGui
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, 10)
-    c.Parent = Confirm
+Bubble.MouseButton1Click:Connect(function()
+    Bubble.Visible = false
+    MainFrame.Visible = true
+    Minimized = false
+    Bubble.Position = lastBubblePos
+end)
 
-    local Text = Instance.new("TextLabel")
-    Text.Text = "Quer fechar o script?"
-    Text.Size = UDim2.new(1, 0, 0, 40)
-    Text.Position = UDim2.new(0, 0, 0, 10)
-    Text.BackgroundTransparency = 1
-    Text.TextColor3 = Color3.fromRGB(0, 0, 0)
-    Text.Font = Enum.Font.GothamBold
-    Text.TextScaled = true
-    Text.Parent = Confirm
+-- Botões Minimizar, Maximizar e Fechar
+local function createButton(text, position, callback)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(0, 25, 0, 25)
+    Button.Position = position
+    Button.Text = text
+    Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextColor3 = Color3.fromRGB(0, 0, 0)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 14
+    Button.Parent = MainFrame
+    Button.MouseButton1Click:Connect(callback)
 
-    local Yes = Instance.new("TextButton")
-    Yes.Text = "Sim"
-    Yes.Size = UDim2.new(0.4, 0, 0, 30)
-    Yes.Position = UDim2.new(0.1, 0, 1, -40)
-    Yes.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    Yes.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Yes.Font = Enum.Font.GothamBold
-    Yes.TextScaled = true
-    Yes.Parent = Confirm
-    local cy = Instance.new("UICorner")
-    cy.CornerRadius = UDim.new(0, 6)
-    cy.Parent = Yes
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = Button
+end
 
-    local No = Yes:Clone()
-    No.Text = "Não"
-    No.Position = UDim2.new(0.55, 0, 1, -40)
-    No.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-    No.Parent = Confirm
+createButton("-", UDim2.new(1, -80, 0, 5), toggleMinimize)
 
-    Yes.MouseButton1Click:Connect(function()
+createButton("▢", UDim2.new(1, -50, 0, 5), function()
+    MainFrame.Size = MainFrame.Size == UDim2.new(0, 280, 0, 180)
+        and UDim2.new(1, -20, 1, -20)
+        or UDim2.new(0, 280, 0, 180)
+end)
+
+createButton("X", UDim2.new(1, -25, 0, 5), function()
+    local confirm = Instance.new("TextButton")
+    confirm.Size = UDim2.new(0, 150, 0, 80)
+    confirm.Position = UDim2.new(0.5, -75, 0.5, -40)
+    confirm.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    confirm.TextColor3 = Color3.new(1, 1, 1)
+    confirm.Text = "Fechar Script?"
+    confirm.Parent = ScreenGui
+
+    confirm.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
     end)
-    No.MouseButton1Click:Connect(function()
-        Confirm:Destroy()
--- Variável para guardar posição da bolinha
-local lastMiniPos = UDim2.new(0, 10, 0.9, 0)
-
-MinBtn.MouseButton1Click:Connect(function()
-    Frame.Visible = false
-    local MiniButton = Instance.new("TextButton")
-    MiniButton.Size = UDim2.new(0, 40, 0, 40)
-    MiniButton.Position = lastMiniPos -- reaparece no último lugar salvo
-    MiniButton.Text = "+"
-    MiniButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    MiniButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-    MiniButton.Font = Enum.Font.GothamBold
-    MiniButton.TextScaled = true
-    MiniButton.Active = true
-    MiniButton.Draggable = true
-    MiniButton.Parent = ScreenGui
-
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(1, 0)
-    c.Parent = MiniButton
-
-    -- Salva posição sempre que o jogador solta a bolinha
-    MiniButton.MouseLeave:Connect(function()
-        lastMiniPos = MiniButton.Position
-    end)
-
-    MiniButton.MouseButton1Click:Connect(function()
-        lastMiniPos = MiniButton.Position -- salva última posição antes de abrir
-        Frame.Visible = true
-        MiniButton:Destroy()
-    end)
 end)
-    end)
+
+-- Botão Server Hop
+local HopButton = Instance.new("TextButton")
+HopButton.Size = UDim2.new(0.7, 0, 0, 40)
+HopButton.Position = UDim2.new(0.15, 0, 0.4, 0)
+HopButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+HopButton.TextColor3 = Color3.new(0, 0, 0)
+HopButton.Text = "Server Hop"
+HopButton.Font = Enum.Font.GothamBold
+HopButton.TextSize = 20
+HopButton.Parent = MainFrame
+
+local corner2 = Instance.new("UICorner")
+corner2.CornerRadius = UDim.new(0, 8)
+corner2.Parent = HopButton
+
+-- TikTok embaixo
+local TikTok = Instance.new("TextLabel")
+TikTok.Size = UDim2.new(1, 0, 0, 30)
+TikTok.Position = UDim2.new(0, 0, 1, -30)
+TikTok.BackgroundTransparency = 1
+TikTok.Text = "TikTok: LosBrothers.ofc"
+TikTok.Font = Enum.Font.Gotham
+TikTok.TextSize = 14
+TikTok.TextColor3 = Color3.new(1, 1, 1)
+TikTok.Parent = MainFrame
+
+-- Função Server Hop
+HopButton.MouseButton1Click:Connect(function()
+    local servers = HttpService:JSONDecode(
+        game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100")
+    )
+    for _, server in ipairs(servers.data) do
+        if server.playing < server.maxPlayers then
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, player)
+            break
+        end
+    end
+end)
+
+-- Ocultar quando menu do Roblox abre
+GuiService.MenuOpened:Connect(function()
+    ScreenGui.Enabled = false
+end)
+GuiService.MenuClosed:Connect(function()
+    ScreenGui.Enabled = true
 end)
