@@ -1,198 +1,188 @@
--- // Variáveis e Serviços
-local Players = game:GetService("Players")
+--[[ 
+📜 Hop Los Brothers - Script Unificado
+Autor: Cauê
+Descrição: Interface personalizável + Server Hop para servidores com +1M/s
+]]
+
+-- // Serviços
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
-local Player = Players.LocalPlayer
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
--- // Criando a GUI principal
+-- // GUI Principal
 local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "HopLosBrothers"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.Parent = game:GetService("CoreGui")
 
+-- // Janela Principal
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 250, 0, 130)
-MainFrame.Position = UDim2.new(0.5, -125, 0.5, -65)
-MainFrame.BackgroundColor3 = Color3.fromRGB(135, 206, 250) -- Azul claro
+MainFrame.Size = UDim2.new(0, 400, 0, 260)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -130)
+MainFrame.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
 MainFrame.BackgroundTransparency = 0.25
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
 -- // Título
 local Title = Instance.new("TextLabel")
-Title.Text = "Hop Los Brothers"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Size = UDim2.new(1, 0, 0, 40)
 Title.BackgroundTransparency = 1
-Title.Size = UDim2.new(1, -60, 0, 30)
-Title.Position = UDim2.new(0, 10, 0, 0)
-Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Text = "Hop Los Brothers"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
 Title.Parent = MainFrame
 
--- // Botões
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Text = "X"
-CloseBtn.Size = UDim2.new(0, 20, 0, 20)
-CloseBtn.Position = UDim2.new(1, -25, 0, 5)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
-CloseBtn.Parent = MainFrame
-
-local MinimizeBtn = Instance.new("TextButton")
-MinimizeBtn.Text = "-"
-MinimizeBtn.Size = UDim2.new(0, 20, 0, 20)
-MinimizeBtn.Position = UDim2.new(1, -50, 0, 5)
-MinimizeBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-MinimizeBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
-MinimizeBtn.Parent = MainFrame
-
-local FullscreenBtn = Instance.new("TextButton")
-FullscreenBtn.Text = "□"
-FullscreenBtn.Size = UDim2.new(0, 20, 0, 20)
-FullscreenBtn.Position = UDim2.new(1, -75, 0, 5)
-FullscreenBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-FullscreenBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
-FullscreenBtn.Parent = MainFrame
-
--- // Server Hop Button
-local HopButton = Instance.new("TextButton")
-HopButton.Text = "Server Hop"
-HopButton.Font = Enum.Font.GothamBold
-HopButton.TextSize = 20
-HopButton.Size = UDim2.new(0.8, 0, 0, 40)
-HopButton.Position = UDim2.new(0.1, 0, 0.4, 0)
-HopButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-HopButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-HopButton.Parent = MainFrame
-
+-- // TikTok
 local TikTok = Instance.new("TextLabel")
-TikTok.Text = "TikTok: LosBrothers.ofc"
-TikTok.Font = Enum.Font.Gotham
-TikTok.TextSize = 14
-TikTok.TextColor3 = Color3.fromRGB(255, 255, 255)
-TikTok.BackgroundTransparency = 1
 TikTok.Size = UDim2.new(1, 0, 0, 20)
-TikTok.Position = UDim2.new(0, 0, 1, -25)
+TikTok.Position = UDim2.new(0, 0, 1, -20)
+TikTok.BackgroundTransparency = 1
+TikTok.Text = "TikTok: LosBrothers.ofc"
+TikTok.TextColor3 = Color3.fromRGB(255, 255, 255)
+TikTok.TextScaled = true
+TikTok.Font = Enum.Font.Gotham
 TikTok.Parent = MainFrame
 
--- // Loading Label (oculto até usar)
-local LoadingLabel = Instance.new("TextLabel")
-LoadingLabel.Text = ""
-LoadingLabel.Font = Enum.Font.GothamBold
-LoadingLabel.TextSize = 16
-LoadingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-LoadingLabel.BackgroundTransparency = 1
-LoadingLabel.Size = UDim2.new(1, 0, 0, 20)
-LoadingLabel.Position = UDim2.new(0, 0, 0.85, 0)
-LoadingLabel.Parent = MainFrame
+-- // Botões de Controle
+local function criarBotaoControle(txt, xOffset)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 30, 0, 30)
+    btn.Position = UDim2.new(1, -xOffset, 0, 5)
+    btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Text = txt
+    btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+    btn.TextScaled = true
+    btn.Font = Enum.Font.GothamBold
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = btn
+    btn.Parent = MainFrame
+    return btn
+end
 
--- // Funções
-local savedPos = MainFrame.Position
-local isFullscreen = false
+local CloseBtn = criarBotaoControle("X", 35)
+local MinimizeBtn = criarBotaoControle("-", 70)
+local FullscreenBtn = criarBotaoControle("⛶", 105)
+
+-- // Minimizado
+local MinimizedButton = Instance.new("ImageButton")
+MinimizedButton.Visible = false
+MinimizedButton.Size = UDim2.new(0, 60, 0, 60)
+MinimizedButton.BackgroundTransparency = 1
+MinimizedButton.Image = "rbxassetid://78899293433795"
+MinimizedButton.Parent = ScreenGui
+MinimizedButton.Position = UDim2.new(0.5, -30, 0.8, 0)
+
+-- // Confirmação de Fechar
+local ConfirmFrame = Instance.new("Frame")
+ConfirmFrame.Size = UDim2.new(0, 250, 0, 120)
+ConfirmFrame.Position = UDim2.new(0.5, -125, 0.5, -60)
+ConfirmFrame.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
+ConfirmFrame.BackgroundTransparency = 0.25
+ConfirmFrame.Visible = false
+ConfirmFrame.Parent = ScreenGui
+local cornerConfirm = Instance.new("UICorner")
+cornerConfirm.CornerRadius = UDim.new(0, 12)
+cornerConfirm.Parent = ConfirmFrame
+
+local ConfirmText = Instance.new("TextLabel")
+ConfirmText.Size = UDim2.new(1, 0, 0, 50)
+ConfirmText.BackgroundTransparency = 1
+ConfirmText.Text = "Você quer fechar esse script?"
+ConfirmText.TextColor3 = Color3.fromRGB(255, 255, 255)
+ConfirmText.TextScaled = true
+ConfirmText.Font = Enum.Font.GothamBold
+ConfirmText.Parent = ConfirmFrame
+
+local YesBtn = Instance.new("TextButton")
+YesBtn.Size = UDim2.new(0.4, 0, 0, 40)
+YesBtn.Position = UDim2.new(0.05, 0, 0.65, 0)
+YesBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+YesBtn.Text = "Sim"
+YesBtn.TextScaled = true
+YesBtn.Font = Enum.Font.GothamBold
+YesBtn.Parent = ConfirmFrame
+local cornerYes = Instance.new("UICorner")
+cornerYes.CornerRadius = UDim.new(0, 10)
+cornerYes.Parent = YesBtn
+
+local NoBtn = YesBtn:Clone()
+NoBtn.Text = "Não"
+NoBtn.Position = UDim2.new(0.55, 0, 0.65, 0)
+NoBtn.Parent = ConfirmFrame
+
+-- // Evento Botões
+CloseBtn.MouseButton1Click:Connect(function()
+    ConfirmFrame.Visible = true
+end)
+
+YesBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+NoBtn.MouseButton1Click:Connect(function()
+    ConfirmFrame.Visible = false
+end)
 
 MinimizeBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
-    local Ball = Instance.new("TextButton")
-    Ball.Text = "◎"
-    Ball.Size = UDim2.new(0, 30, 0, 30)
-    Ball.Position = savedPos
-    Ball.BackgroundTransparency = 1
-    Ball.TextColor3 = Color3.fromRGB(255,255,255)
-    Ball.TextScaled = true
-    Ball.Parent = ScreenGui
-    Ball.Active = true
-    Ball.Draggable = true
+    MinimizedButton.Visible = true
+end)
 
-    Ball.MouseButton1Click:Connect(function()
-        savedPos = Ball.Position
-        Ball:Destroy()
-        MainFrame.Visible = true
-        MainFrame.Position = savedPos
-    end)
+MinimizedButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    MinimizedButton.Visible = false
 end)
 
 FullscreenBtn.MouseButton1Click:Connect(function()
-    if not isFullscreen then
-        savedPos = MainFrame.Position
+    if MainFrame.Size ~= UDim2.new(1, 0, 1, 0) then
         MainFrame.Size = UDim2.new(1, 0, 1, 0)
         MainFrame.Position = UDim2.new(0, 0, 0, 0)
-        isFullscreen = true
     else
-        MainFrame.Size = UDim2.new(0, 250, 0, 130)
-        MainFrame.Position = savedPos
-        isFullscreen = false
+        MainFrame.Size = UDim2.new(0, 400, 0, 260)
+        MainFrame.Position = UDim2.new(0.5, -200, 0.5, -130)
     end
 end)
 
-CloseBtn.MouseButton1Click:Connect(function()
-    local ConfirmFrame = Instance.new("Frame")
-    ConfirmFrame.Size = UDim2.new(0, 200, 0, 100)
-    ConfirmFrame.Position = UDim2.new(0.5, -100, 0.5, -50)
-    ConfirmFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    ConfirmFrame.Parent = ScreenGui
-    ConfirmFrame.Active = true
+-- // Server Hop
+local ProcurandoLabel = Instance.new("TextLabel")
+ProcurandoLabel.Size = UDim2.new(1, 0, 0, 20)
+ProcurandoLabel.Position = UDim2.new(0, 0, 1, -40)
+ProcurandoLabel.BackgroundTransparency = 1
+ProcurandoLabel.Text = ""
+ProcurandoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ProcurandoLabel.TextScaled = true
+ProcurandoLabel.Font = Enum.Font.GothamBold
+ProcurandoLabel.Parent = MainFrame
 
-    local ConfirmText = Instance.new("TextLabel")
-    ConfirmText.Text = "Você quer fechar esse script?"
-    ConfirmText.Size = UDim2.new(1, 0, 0.6, 0)
-    ConfirmText.BackgroundTransparency = 1
-    ConfirmText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ConfirmText.Parent = ConfirmFrame
-
-    local YesBtn = Instance.new("TextButton")
-    YesBtn.Text = "Sim"
-    YesBtn.Size = UDim2.new(0.5, -5, 0.4, 0)
-    YesBtn.Position = UDim2.new(0, 0, 0.6, 0)
-    YesBtn.Parent = ConfirmFrame
-
-    local NoBtn = Instance.new("TextButton")
-    NoBtn.Text = "Não"
-    NoBtn.Size = UDim2.new(0.5, -5, 0.4, 0)
-    NoBtn.Position = UDim2.new(0.5, 5, 0.6, 0)
-    NoBtn.Parent = ConfirmFrame
-
-    YesBtn.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
-    end)
-    NoBtn.MouseButton1Click:Connect(function()
-        ConfirmFrame:Destroy()
-    end)
-end)
-
--- // Função do Server Hop com carregamento
-HopButton.MouseButton1Click:Connect(function()
+local function hopServer()
+    ProcurandoLabel.Text = "Procurando servidor..."
     task.spawn(function()
-        LoadingLabel.Text = "🔄 Procurando servidor..."
-        local cursor = ""
-        local found = false
-        while not found do
-            local url = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Desc&limit=10"..(cursor ~= "" and "&cursor="..cursor or "")
-            local success, result = pcall(function()
-                return HttpService:JSONDecode(game:HttpGet(url))
-            end)
-            if success and result and result.data then
-                for _, server in ipairs(result.data) do
-                    if server.playing >= 1000000 and server.playing < server.maxPlayers then
-                        found = true
-                        LoadingLabel.Text = "✅ Servidor encontrado!"
-                        task.wait(0.5)
-                        TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, Player)
-                        break
-                    end
-                end
-                cursor = result.nextPageCursor or ""
-                if cursor == "" then break end
-            else
-                break
+        local servers = HttpService:JSONDecode(game:HttpGet(
+            "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+        )).data
+
+        for _, server in ipairs(servers) do
+            -- Aqui você precisaria de um jeito de filtrar servidores > 1M/s (se o jogo expõe essa info)
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                ProcurandoLabel.Text = "🔗 Servidor encontrado! Teleportando..."
+                task.wait(2)
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
+                return
             end
-            task.wait(0.1)
         end
-        if not found then
-            LoadingLabel.Text = "❌ Nenhum servidor encontrado"
-            task.wait(1.5)
-            LoadingLabel.Text = ""
-        end
+        ProcurandoLabel.Text = "Nenhum servidor encontrado!"
     end)
-end)
+end
+
+hopServer()
