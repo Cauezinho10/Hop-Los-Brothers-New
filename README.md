@@ -1,60 +1,119 @@
 --[[ 
-💻 Hop Los Brothers - Server Hop com Filtro
-🔧 Recursos:
-✅ Botão "Server Hop" que só começa ao clicar
-✅ Mensagens no centro da tela: Procurando / Encontrado / Nenhum encontrado
-✅ Filtro: só entra em servidores com Brainrots > 1M
-✅ Bolinha que pode ser movida, some quando abrir o menu do Roblox
-✅ Confirmação ao fechar o script
-✅ Compatível com menu do Roblox, não atrapalha
-✅ Lugar para colocar sua imagem (já com ID da bolinha)
-]]
+💻 Hop Los Brothers - Versão Final
+--]]
 
--- Services
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local GuiService = game:GetService("GuiService")
-
 local player = Players.LocalPlayer
 local placeId = game.PlaceId
 
--- GUI Principal
+-- GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.ResetOnSpawn = false
 ScreenGui.Name = "HopLosBrothers"
+ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
--- Frame principal
+-- Frame Principal
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 250, 0, 140)
+MainFrame.Size = UDim2.new(0, 280, 0, 160)
 MainFrame.Position = UDim2.new(0.35, 0, 0.25, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(170, 200, 255)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+MainFrame.BackgroundTransparency = 0.25
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
--- Título
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+-- Barra de título
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 28)
+TitleBar.BackgroundTransparency = 1
+TitleBar.Parent = MainFrame
+
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Size = UDim2.new(1, -90, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
 Title.Text = "Hop Los Brothers"
-Title.TextColor3 = Color3.fromRGB(0, 0, 0)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 20
-Title.Parent = MainFrame
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TitleBar
 
--- Botão de Fechar (com confirmação)
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 25, 0, 25)
-CloseButton.Position = UDim2.new(1, -30, 0, 5)
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-CloseButton.Parent = MainFrame
+-- Botões de janela
+local function CreateWindowButton(txt, pos, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 24, 0, 24)
+    btn.Position = pos
+    btn.Text = txt
+    btn.BackgroundColor3 = color
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 18
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = TitleBar
+    return btn
+end
 
--- Frame de Confirmação
+local MaxButton = CreateWindowButton("□", UDim2.new(1, -78, 0, 2), Color3.fromRGB(80, 80, 80))
+local MinButton = CreateWindowButton("-", UDim2.new(1, -52, 0, 2), Color3.fromRGB(80, 80, 80))
+local CloseButton = CreateWindowButton("X", UDim2.new(1, -26, 0, 2), Color3.fromRGB(200, 0, 0))
+
+-- Texto TikTok
+local TikTokText = Instance.new("TextLabel")
+TikTokText.Size = UDim2.new(1, 0, 0, 20)
+TikTokText.Position = UDim2.new(0, 0, 1, -22)
+TikTokText.BackgroundTransparency = 1
+TikTokText.Text = "TikTok: LosBrothers.ofc"
+TikTokText.TextColor3 = Color3.fromRGB(255, 255, 255)
+TikTokText.Font = Enum.Font.GothamSemibold
+TikTokText.TextSize = 14
+TikTokText.Parent = MainFrame
+
+-- Botão de Server Hop
+local ServerHopButton = Instance.new("TextButton")
+ServerHopButton.Size = UDim2.new(0.8, 0, 0, 40)
+ServerHopButton.Position = UDim2.new(0.1, 0, 0.35, 0)
+ServerHopButton.Text = "Server Hop"
+ServerHopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ServerHopButton.BackgroundColor3 = Color3.fromRGB(0, 90, 220)
+ServerHopButton.Font = Enum.Font.GothamBold
+ServerHopButton.TextSize = 18
+ServerHopButton.Parent = MainFrame
+
+local UICornerBtn = Instance.new("UICorner")
+UICornerBtn.CornerRadius = UDim.new(0, 8)
+UICornerBtn.Parent = ServerHopButton
+
+-- Texto de status
+local StatusText = Instance.new("TextLabel")
+StatusText.Size = UDim2.new(1, 0, 0, 20)
+StatusText.Position = UDim2.new(0, 0, 0.8, 0)
+StatusText.BackgroundTransparency = 1
+StatusText.TextColor3 = Color3.fromRGB(255, 255, 255)
+StatusText.Font = Enum.Font.Gotham
+StatusText.TextSize = 16
+StatusText.Text = ""
+StatusText.Parent = MainFrame
+
+-- Bolinha de carregamento
+local LoadingImage = Instance.new("ImageLabel")
+LoadingImage.Size = UDim2.new(0, 50, 0, 50)
+LoadingImage.Position = UDim2.new(0.5, -25, 0.5, -25)
+LoadingImage.BackgroundTransparency = 1
+LoadingImage.Image = "rbxassetid://78899293433795"
+LoadingImage.Visible = false
+LoadingImage.Active = true
+LoadingImage.Draggable = true
+LoadingImage.Parent = ScreenGui
+
+-- Frame de confirmação ao fechar
 local ConfirmFrame = Instance.new("Frame")
 ConfirmFrame.Size = UDim2.new(0, 200, 0, 100)
 ConfirmFrame.Position = UDim2.new(0.5, -100, 0.5, -50)
@@ -87,80 +146,54 @@ NoButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 NoButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 NoButton.Parent = ConfirmFrame
 
--- Bolinha de Status
-local LoadingImage = Instance.new("ImageLabel")
-LoadingImage.Size = UDim2.new(0, 50, 0, 50)
-LoadingImage.Position = UDim2.new(0.5, -25, 0.5, -25)
-LoadingImage.BackgroundTransparency = 1
-LoadingImage.Image = "rbxassetid://78899293433795" -- Aqui você pode trocar depois
-LoadingImage.Visible = false
-LoadingImage.Parent = ScreenGui
-
--- Texto de status
-local StatusText = Instance.new("TextLabel")
-StatusText.Size = UDim2.new(1, 0, 0, 30)
-StatusText.Position = UDim2.new(0, 0, 1, -30)
-StatusText.BackgroundTransparency = 1
-StatusText.TextColor3 = Color3.fromRGB(0, 0, 0)
-StatusText.Font = Enum.Font.GothamBold
-StatusText.TextSize = 16
-StatusText.Text = ""
-StatusText.Parent = MainFrame
-
--- Botão de Server Hop
-local ServerHopButton = Instance.new("TextButton")
-ServerHopButton.Size = UDim2.new(0.8, 0, 0, 40)
-ServerHopButton.Position = UDim2.new(0.1, 0, 0.5, 0)
-ServerHopButton.Text = "Server Hop"
-ServerHopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ServerHopButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
-ServerHopButton.Font = Enum.Font.GothamBold
-ServerHopButton.TextSize = 18
-ServerHopButton.Parent = MainFrame
-
 -- Função para procurar servidor
 local function FindServer()
-	StatusText.Text = "🔎 Procurando servidor..."
-	LoadingImage.Visible = true
-	local servers = {}
-	local cursor = ""
-	repeat
-		local response = game:HttpGet("https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100" .. (cursor ~= "" and "&cursor=" .. cursor or ""))
-		local data = HttpService:JSONDecode(response)
-		for _, v in pairs(data.data) do
-			if v.playing < v.maxPlayers and (v.playerCount and v.playerCount > 1000000) then
-				table.insert(servers, v.id)
-			end
-		end
-		cursor = data.nextPageCursor or ""
-	until cursor == "" or #servers > 0
+    StatusText.Text = "🔎 Procurando servidor..."
+    LoadingImage.Visible = true
+    local servers = {}
+    local cursor = ""
+    repeat
+        local response = game:HttpGet("https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100" .. (cursor ~= "" and "&cursor=" .. cursor or ""))
+        local data = HttpService:JSONDecode(response)
+        for _, v in pairs(data.data) do
+            if v.playing < v.maxPlayers and (v.playerCount and v.playerCount > 1000000) then
+                table.insert(servers, v.id)
+            end
+        end
+        cursor = data.nextPageCursor or ""
+    until cursor == "" or #servers > 0
 
-	LoadingImage.Visible = false
+    LoadingImage.Visible = false
 
-	if #servers > 0 then
-		StatusText.Text = "✅ Servidor encontrado! Entrando..."
-		TeleportService:TeleportToPlaceInstance(placeId, servers[1], player)
-	else
-		StatusText.Text = "❌ Nenhum servidor encontrado com +1M Brainrots."
-	end
+    if #servers > 0 then
+        StatusText.Text = "✅ Servidor encontrado! Entrando..."
+        TeleportService:TeleportToPlaceInstance(placeId, servers[1], player)
+    else
+        StatusText.Text = "❌ Nenhum servidor encontrado."
+    end
 end
 
 -- Eventos
 ServerHopButton.MouseButton1Click:Connect(FindServer)
-
 CloseButton.MouseButton1Click:Connect(function()
-	ConfirmFrame.Visible = true
+    ConfirmFrame.Visible = true
 end)
-
 YesButton.MouseButton1Click:Connect(function()
-	ScreenGui:Destroy()
+    ScreenGui:Destroy()
 end)
-
 NoButton.MouseButton1Click:Connect(function()
-	ConfirmFrame.Visible = false
+    ConfirmFrame.Visible = false
 end)
 
--- Some a bolinha quando abrir o menu do Roblox
+-- Minimizar / Maximizar
+MinButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+    LoadingImage.Visible = false
+end)
+MaxButton.MouseButton1Click:Connect(function()
+    MainFrame.Size = UDim2.new(0, 350, 0, 200)
+end)
+
 GuiService.MenuOpened:Connect(function()
-	LoadingImage.Visible = false
+    LoadingImage.Visible = false
 end)
