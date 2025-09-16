@@ -1,21 +1,21 @@
--- HOP LOS BROTHERS FINAL
+-- HOP LOS BROTHERS FINAL LIMPO
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Criar GUI principal
+-- Criar GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "HopLosBrothers"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Janela principal
+-- Frame principal
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 320, 0, 230)
 MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-MainFrame.BackgroundTransparency = 0.25
+MainFrame.BackgroundColor3 = Color3.fromRGB(135, 206, 250) -- Azul claro
+MainFrame.BackgroundTransparency = 0.25 -- 75% transparente
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
@@ -24,10 +24,10 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 15)
 UICorner.Parent = MainFrame
 
--- Título
+-- Título centralizado
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -40, 0, 30)
-Title.Position = UDim2.new(0, 10, 0, 5)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Position = UDim2.new(0, 0, 0, 5)
 Title.Text = "Hop Los Brothers"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.BackgroundTransparency = 1
@@ -35,7 +35,7 @@ Title.TextScaled = true
 Title.Font = Enum.Font.GothamBold
 Title.Parent = MainFrame
 
--- TikTok
+-- TikTok embaixo
 local TikTok = Instance.new("TextLabel")
 TikTok.Size = UDim2.new(1, 0, 0, 20)
 TikTok.Position = UDim2.new(0, 0, 1, -25)
@@ -45,17 +45,6 @@ TikTok.BackgroundTransparency = 1
 TikTok.TextScaled = true
 TikTok.Font = Enum.Font.GothamBold
 TikTok.Parent = MainFrame
-
--- Mensagem de status
-local Status = Instance.new("TextLabel")
-Status.Size = UDim2.new(1, 0, 0, 20)
-Status.Position = UDim2.new(0, 0, 1, -50)
-Status.Text = ""
-Status.TextColor3 = Color3.fromRGB(255, 255, 255)
-Status.BackgroundTransparency = 1
-Status.TextScaled = true
-Status.Font = Enum.Font.Gotham
-Status.Parent = MainFrame
 
 -- Botão Hop Server
 local HopButton = Instance.new("TextButton")
@@ -103,7 +92,7 @@ CloseButton.Parent = MainFrame
 local BallButton = Instance.new("ImageButton")
 BallButton.Size = UDim2.new(0, 60, 0, 60)
 BallButton.Position = UDim2.new(0, 10, 1, -70)
-BallButton.Image = "rbxassetid://78899293433795"
+BallButton.Image = "rbxassetid://COLOQUE_AQUI_O_ID_DA_FOTO"
 BallButton.Visible = false
 BallButton.BackgroundTransparency = 1
 BallButton.Active = true
@@ -116,7 +105,7 @@ MinButton.MouseButton1Click:Connect(function()
     BallButton.Visible = true
 end)
 
--- Maximizar (tela cheia)
+-- Maximizar
 MaxButton.MouseButton1Click:Connect(function()
     if MainFrame.Size ~= UDim2.new(1, 0, 1, 0) then
         MainFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -144,9 +133,8 @@ BallButton.MouseButton1Click:Connect(function()
     BallButton.Visible = false
 end)
 
--- Função de procurar e teleportar
+-- Teleporte de servidor
 local function HopServer()
-    Status.Text = "Procurando servidor..."
     local success, result = pcall(function()
         return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"))
     end)
@@ -154,13 +142,11 @@ local function HopServer()
     if success and result and result.data then
         for _, server in ipairs(result.data) do
             if server.playing < server.maxPlayers then
-                Status.Text = "Servidor encontrado! Teleportando..."
                 TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
                 return
             end
         end
     end
-    Status.Text = "Nenhum servidor encontrado."
 end
 
 HopButton.MouseButton1Click:Connect(HopServer)
