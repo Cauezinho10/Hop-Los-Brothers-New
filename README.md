@@ -1,80 +1,129 @@
--- Hop Los Brothers (Minimize com Bolinha)
+-- Hop Los Brothers - Painel Transparente com Personagens
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
 
--- Criar GUI principal
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "HopLosBrothers"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = player:WaitForChild("PlayerGui")
+local MIN_BRAINROT = 1000000 -- valor mínimo para considerar servidor bom
 
--- Frame principal
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 300, 0, 220)
-MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-MainFrame.BackgroundTransparency = 0.25 -- 75% transparente
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true -- Permite mover o script
-MainFrame.Parent = ScreenGui
+-- GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 
--- UICorner para bordas arredondadas
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 15)
-corner.Parent = MainFrame
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 280, 0, 160)
+Frame.Position = UDim2.new(0.5, -140, 0.5, -80)
+Frame.BackgroundColor3 = Color3.fromRGB(47, 120, 200) -- azul do personagem
+Frame.BackgroundTransparency = 0.25 -- 75% transparente
+Frame.Active = true
+Frame.Draggable = true
+Frame.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 14)
+Corner.Parent = Frame
+
+-- Ícones dos personagens
+local LeftIcon = Instance.new("ImageLabel")
+LeftIcon.Size = UDim2.new(0, 40, 0, 40)
+LeftIcon.Position = UDim2.new(0.05, 0, -0.25, 0)
+LeftIcon.Image = "rbxassetid://123456789" -- Substitua pelo ID do personagem azul
+LeftIcon.BackgroundTransparency = 1
+LeftIcon.Parent = Frame
+
+local RightIcon = Instance.new("ImageLabel")
+RightIcon.Size = UDim2.new(0, 40, 0, 40)
+RightIcon.Position = UDim2.new(0.8, 0, -0.25, 0)
+RightIcon.Image = "rbxassetid://987654321" -- Substitua pelo ID do biscoito
+RightIcon.BackgroundTransparency = 1
+RightIcon.Parent = Frame
 
 -- Título
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -40, 0, 30)
-Title.Position = UDim2.new(0, 10, 0, 5)
-Title.Text = "Hop Los Brothers"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "LOS BOTHERS"
+Title.Size = UDim2.new(1, 0, 0, 25)
+Title.Position = UDim2.new(0, 0, 0, 10)
 Title.BackgroundTransparency = 1
-Title.TextScaled = true
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
-Title.Parent = MainFrame
+Title.TextScaled = true
+Title.Parent = Frame
 
--- TikTok
-local TikTok = Instance.new("TextLabel")
-TikTok.Size = UDim2.new(1, 0, 0, 20)
-TikTok.Position = UDim2.new(0, 0, 1, -25)
-TikTok.Text = "TikTok: LosBrothers.ofc"
-TikTok.TextColor3 = Color3.fromRGB(255, 255, 255)
-TikTok.BackgroundTransparency = 1
-TikTok.TextScaled = true
-TikTok.Font = Enum.Font.GothamBold
-TikTok.Parent = MainFrame
+-- Função para buscar Brainrot
+local function GetBrainrot()
+    local val = nil
+    pcall(function()
+        if LocalPlayer:FindFirstChild("leaderstats") then
+            for _, v in pairs(LocalPlayer.leaderstats:GetChildren()) do
+                if string.find(string.lower(v.Name), "brain") then
+                    val = tonumber(v.Value)
+                end
+            end
+        end
+    end)
+    pcall(function()
+        for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
+            if gui:IsA("TextLabel") or gui:IsA("TextBox") then
+                if string.find(string.lower(gui.Text), "brain") then
+                    local num = tonumber(gui.Text:gsub("%D", ""))
+                    if num then val = num end
+                end
+            end
+        end
+    end)
+    return val
+end
 
--- Botão minimizar
-local MinButton = Instance.new("TextButton")
-MinButton.Size = UDim2.new(0, 25, 0, 25)
-MinButton.Position = UDim2.new(1, -80, 0, 5)
-MinButton.Text = "-"
-MinButton.TextScaled = true
-MinButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-MinButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-MinButton.Parent = MainFrame
+-- Botão de Server Hop
+local HopButton = Instance.new("TextButton")
+HopButton.Size = UDim2.new(0.8, 0, 0, 35)
+HopButton.Position = UDim2.new(0.1, 0, 0.45, 0)
+HopButton.Text = "Server Hop"
+HopButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+HopButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+HopButton.Font = Enum.Font.GothamBold
+HopButton.TextScaled = true
+HopButton.Parent = Frame
 
--- Bolinha (vai aparecer ao minimizar)
-local BallButton = Instance.new("ImageButton")
-BallButton.Size = UDim2.new(0, 60, 0, 60)
-BallButton.Position = UDim2.new(0, 10, 1, -70)
-BallButton.Image = "rbxassetid://COLOQUE_AQUI_O_ID_DA_FOTO" -- <- VOCÊ TROCA PELO NÚMERO DA IMAGEM
-BallButton.Visible = false
-BallButton.BackgroundTransparency = 1
-BallButton.Active = true
-BallButton.Draggable = true
-BallButton.Parent = ScreenGui
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 10)
+ButtonCorner.Parent = HopButton
 
--- Função minimizar
-MinButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = false
-    BallButton.Visible = true
-end)
+-- Função de Hop
+local function HopServer()
+    local servers = {}
+    local cursor = ""
+    repeat
+        local success, result = pcall(function()
+            return HttpService:JSONDecode(
+                game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100" .. (cursor ~= "" and "&cursor=" .. cursor or ""))
+            )
+        end)
+        if success and result and result.data then
+            for _, v in pairs(result.data) do
+                if v.playing < v.maxPlayers then
+                    table.insert(servers, v.id)
+                end
+            end
+            cursor = result.nextPageCursor or ""
+        else
+            break
+        end
+    until cursor == ""
 
--- Clicar na bolinha para abrir de novo
-BallButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = true
-    BallButton.Visible = false
+    if #servers > 0 then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
+    end
+end
+
+HopButton.MouseButton1Click:Connect(function()
+    while task.wait(3) do
+        local brainrot = GetBrainrot()
+        if brainrot and brainrot >= MIN_BRAINROT then
+            warn("Encontrado servidor com " .. brainrot .. " Brainrot! Parando.")
+            break
+        else
+            warn("Brainrot baixo (".. tostring(brainrot) .."), pulando...")
+            HopServer()
+        end
+    end
 end)
