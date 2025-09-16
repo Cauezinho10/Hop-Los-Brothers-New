@@ -1,171 +1,166 @@
---// Hop Los Brothers (versão final)
---// Feito para ser bonito, rápido e funcional
-
-local Players = game:GetService("Players")
+-- HOP LOS BROTHERS FINAL
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Variáveis de UI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.CoreGui
+-- Criar GUI principal
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "HopLosBrothers"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Criar janela principal
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 320, 0, 200)
-mainFrame.Position = UDim2.new(0.5, -160, 0.5, -100)
-mainFrame.BackgroundColor3 = Color3.fromRGB(135, 206, 250)
-mainFrame.BackgroundTransparency = 0.25
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = screenGui
+-- Janela principal
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 320, 0, 230)
+MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+MainFrame.BackgroundTransparency = 0.25
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
 
-mainFrame.ClipsDescendants = false
-mainFrame.Name = "HopLosBrothers"
-
--- Arredondar bordas
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 15)
-corner.Parent = mainFrame
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = MainFrame
 
 -- Título
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -40, 0, 30)
-title.Position = UDim2.new(0, 10, 0, 5)
-title.Text = "Hop Los Brothers"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.BackgroundTransparency = 1
-title.Font = Enum.Font.GothamBold
-title.TextSize = 20
-title.Parent = mainFrame
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -40, 0, 30)
+Title.Position = UDim2.new(0, 10, 0, 5)
+Title.Text = "Hop Los Brothers"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
 
--- Botões de fechar, minimizar e tela cheia
-local closeBtn = Instance.new("TextButton")
-closeBtn.Text = "X"
-closeBtn.Size = UDim2.new(0, 25, 0, 25)
-closeBtn.Position = UDim2.new(1, -30, 0, 5)
-closeBtn.BackgroundTransparency = 1
-closeBtn.TextColor3 = Color3.new(1, 1, 1)
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 20
-closeBtn.Parent = mainFrame
+-- TikTok
+local TikTok = Instance.new("TextLabel")
+TikTok.Size = UDim2.new(1, 0, 0, 20)
+TikTok.Position = UDim2.new(0, 0, 1, -25)
+TikTok.Text = "TikTok: LosBrothers.ofc"
+TikTok.TextColor3 = Color3.fromRGB(255, 255, 255)
+TikTok.BackgroundTransparency = 1
+TikTok.TextScaled = true
+TikTok.Font = Enum.Font.GothamBold
+TikTok.Parent = MainFrame
 
-local minimizeBtn = Instance.new("TextButton")
-minimizeBtn.Text = "-"
-minimizeBtn.Size = UDim2.new(0, 25, 0, 25)
-minimizeBtn.Position = UDim2.new(1, -60, 0, 5)
-minimizeBtn.BackgroundTransparency = 1
-minimizeBtn.TextColor3 = Color3.new(1, 1, 1)
-minimizeBtn.Font = Enum.Font.GothamBold
-minimizeBtn.TextSize = 20
-minimizeBtn.Parent = mainFrame
+-- Mensagem de status
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(1, 0, 0, 20)
+Status.Position = UDim2.new(0, 0, 1, -50)
+Status.Text = ""
+Status.TextColor3 = Color3.fromRGB(255, 255, 255)
+Status.BackgroundTransparency = 1
+Status.TextScaled = true
+Status.Font = Enum.Font.Gotham
+Status.Parent = MainFrame
 
-local fullscreenBtn = Instance.new("TextButton")
-fullscreenBtn.Text = "▢"
-fullscreenBtn.Size = UDim2.new(0, 25, 0, 25)
-fullscreenBtn.Position = UDim2.new(1, -90, 0, 5)
-fullscreenBtn.BackgroundTransparency = 1
-fullscreenBtn.TextColor3 = Color3.new(1, 1, 1)
-fullscreenBtn.Font = Enum.Font.GothamBold
-fullscreenBtn.TextSize = 20
-fullscreenBtn.Parent = mainFrame
+-- Botão Hop Server
+local HopButton = Instance.new("TextButton")
+HopButton.Size = UDim2.new(0.8, 0, 0, 40)
+HopButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+HopButton.Text = "Hop Server"
+HopButton.TextScaled = true
+HopButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+HopButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+HopButton.Parent = MainFrame
 
--- Texto TikTok
-local tiktok = Instance.new("TextLabel")
-tiktok.Size = UDim2.new(1, 0, 0, 20)
-tiktok.Position = UDim2.new(0, 0, 1, -25)
-tiktok.Text = "TikTok: LosBrothers.ofc"
-tiktok.TextColor3 = Color3.new(1, 1, 1)
-tiktok.BackgroundTransparency = 1
-tiktok.Font = Enum.Font.Gotham
-tiktok.TextSize = 16
-tiktok.Parent = mainFrame
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 8)
+ButtonCorner.Parent = HopButton
 
--- Botão Server Hop
-local hopButton = Instance.new("TextButton")
-hopButton.Size = UDim2.new(0.7, 0, 0, 50)
-hopButton.Position = UDim2.new(0.15, 0, 0.35, 0)
-hopButton.Text = "Server Hop"
-hopButton.Font = Enum.Font.GothamBold
-hopButton.TextSize = 22
-hopButton.TextColor3 = Color3.new(0, 0, 0)
-hopButton.BackgroundColor3 = Color3.new(1, 1, 1)
-hopButton.Parent = mainFrame
+-- Minimizar / Maximizar / Fechar
+local MinButton = Instance.new("TextButton")
+MinButton.Size = UDim2.new(0, 25, 0, 25)
+MinButton.Position = UDim2.new(1, -80, 0, 5)
+MinButton.Text = "-"
+MinButton.TextScaled = true
+MinButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MinButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+MinButton.Parent = MainFrame
 
-local hopCorner = Instance.new("UICorner")
-hopCorner.CornerRadius = UDim.new(0, 10)
-hopCorner.Parent = hopButton
+local MaxButton = Instance.new("TextButton")
+MaxButton.Size = UDim2.new(0, 25, 0, 25)
+MaxButton.Position = UDim2.new(1, -50, 0, 5)
+MaxButton.Text = "⛶"
+MaxButton.TextScaled = true
+MaxButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MaxButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+MaxButton.Parent = MainFrame
 
--- Procurando servidor
-local statusText = Instance.new("TextLabel")
-statusText.Size = UDim2.new(1, 0, 0, 20)
-statusText.Position = UDim2.new(0, 0, 1, -50)
-statusText.Text = ""
-statusText.TextColor3 = Color3.new(1, 1, 1)
-statusText.BackgroundTransparency = 1
-statusText.Font = Enum.Font.Gotham
-statusText.TextSize = 16
-statusText.Parent = mainFrame
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Position = UDim2.new(1, -25, 0, 5)
+CloseButton.Text = "X"
+CloseButton.TextScaled = true
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Parent = MainFrame
 
--- Minimizar vira um quadrado com imagem
-local miniIcon = Instance.new("ImageButton")
-miniIcon.Visible = false
-miniIcon.Size = UDim2.new(0, 50, 0, 50)
-miniIcon.Image = "rbxassetid://INSERT_IMAGE_ID" -- Substitua pelo ID da imagem que você quer
-miniIcon.BackgroundTransparency = 1
-miniIcon.Parent = screenGui
-miniIcon.Position = UDim2.new(0.1, 0, 0.8, 0)
+-- Bolinha
+local BallButton = Instance.new("ImageButton")
+BallButton.Size = UDim2.new(0, 60, 0, 60)
+BallButton.Position = UDim2.new(0, 10, 1, -70)
+BallButton.Image = "rbxassetid://78899293433795"
+BallButton.Visible = false
+BallButton.BackgroundTransparency = 1
+BallButton.Active = true
+BallButton.Draggable = true
+BallButton.Parent = ScreenGui
 
--- Funções dos botões
-closeBtn.MouseButton1Click:Connect(function()
-	local confirm = Instance.new("TextButton")
-	confirm.Size = UDim2.new(0, 200, 0, 100)
-	confirm.Position = UDim2.new(0.5, -100, 0.5, -50)
-	confirm.Text = "Você quer fechar esse script?\nClique para confirmar."
-	confirm.Font = Enum.Font.GothamBold
-	confirm.TextSize = 18
-	confirm.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-	confirm.TextColor3 = Color3.new(1, 1, 1)
-	confirm.Parent = screenGui
-	confirm.MouseButton1Click:Connect(function()
-		screenGui:Destroy()
-	end)
+-- Minimizar
+MinButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    BallButton.Visible = true
 end)
 
-minimizeBtn.MouseButton1Click:Connect(function()
-	mainFrame.Visible = false
-	miniIcon.Visible = true
+-- Maximizar (tela cheia)
+MaxButton.MouseButton1Click:Connect(function()
+    if MainFrame.Size ~= UDim2.new(1, 0, 1, 0) then
+        MainFrame.Size = UDim2.new(1, 0, 1, 0)
+        MainFrame.Position = UDim2.new(0, 0, 0, 0)
+    else
+        MainFrame.Size = UDim2.new(0, 320, 0, 230)
+        MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
+    end
 end)
 
-miniIcon.MouseButton1Click:Connect(function()
-	mainFrame.Visible = true
-	miniIcon.Visible = false
+-- Confirmar antes de fechar
+CloseButton.MouseButton1Click:Connect(function()
+    local confirm = Instance.new("Message")
+    confirm.Text = "Você quer fechar esse script? (Clique OK para fechar)"
+    confirm.Parent = ScreenGui
+    task.wait(2)
+    confirm:Destroy()
+    MainFrame.Visible = false
+    BallButton.Visible = false
 end)
 
-fullscreenBtn.MouseButton1Click:Connect(function()
-	if mainFrame.Size ~= UDim2.new(1, 0, 1, 0) then
-		mainFrame.Size = UDim2.new(1, 0, 1, 0)
-		mainFrame.Position = UDim2.new(0, 0, 0, 0)
-	else
-		mainFrame.Size = UDim2.new(0, 320, 0, 200)
-		mainFrame.Position = UDim2.new(0.5, -160, 0.5, -100)
-	end
+-- Clicar na bolinha para abrir de novo
+BallButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    BallButton.Visible = false
 end)
 
--- Função de Server Hop
-local function serverHop()
-	statusText.Text = "🔄 Procurando servidor..."
-	local servers = HttpService:JSONDecode(game:HttpGetAsync(
-		"https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Desc&limit=100"
-	))
-	for _,server in ipairs(servers.data) do
-		if server.playing < server.maxPlayers and server.ping and server.ping > 1000000 then
-			TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
-			return
-		end
-	end
-	statusText.Text = "❌ Nenhum servidor encontrado com +1M/s."
+-- Função de procurar e teleportar
+local function HopServer()
+    Status.Text = "Procurando servidor..."
+    local success, result = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"))
+    end)
+
+    if success and result and result.data then
+        for _, server in ipairs(result.data) do
+            if server.playing < server.maxPlayers then
+                Status.Text = "Servidor encontrado! Teleportando..."
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
+                return
+            end
+        end
+    end
+    Status.Text = "Nenhum servidor encontrado."
 end
 
-hopButton.MouseButton1Click:Connect(serverHop)
+HopButton.MouseButton1Click:Connect(HopServer)
